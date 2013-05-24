@@ -1,0 +1,22 @@
+<table id="users" class="display" data-source="<%= users_url(format: "json") %>">
+  <thead>
+  <tr>
+    <th>Name</th>
+    <th>Exp</th>
+    <th>Bought</th>
+    <th>Sold</th>
+    <th>Listed</th>
+    <th>Sold %</th>
+    <th>Rated</th>
+    <th>Buyer<br>Rating</th>
+    <th>Seller<br>Rating</th>
+  </tr>
+  </thead>
+</table>
+
+<div class="panel">
+  <%= render 'form' %>
+</div>
+<a class="trigger" href="#">Filter</a>
+
+

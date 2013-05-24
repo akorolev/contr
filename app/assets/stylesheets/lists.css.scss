@@ -1,0 +1,196 @@
+// Place all the styles related to the lists controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+body {
+  background:#ebeadf;
+  width:1000px;
+  margin: 0 150px;
+  font-size:13px;
+  font-family:georgia, 'time new romans', serif;
+  padding:0;
+}
+
+
+a:focus {
+  outline: none;
+}
+
+h1 {
+  font-size: 34px;
+  font-family: verdana, helvetica, arial, sans-serif;
+  letter-spacing:-2px;
+  color:#9FC54E;
+  font-weight:700;
+  padding:20px 0 0;
+}
+
+h2 {
+  font-size: 24px;
+  font-family: verdana, helvetica, arial, sans-serif;
+  color:#444444;
+  font-weight: 400;
+  padding: 0 0 10px;
+}
+
+h3 {
+  font-size:14px;
+  font-family:verdana, helvetica, arial, sans-serif;
+  letter-spacing:-1px;
+  color:#fff;
+  font-weight: 700;
+  text-transform:uppercase;
+  margin:0;
+  padding:8px 0 8px 0;
+}
+
+
+
+p {
+  color:#cccccc;
+  line-height:22px;
+  padding: 0 0 10px;
+  margin: 20px 0 20px 0;
+}
+
+img {
+  border:none;
+}
+
+#container {
+  clear: both;
+  margin: 0;
+  padding: 0;
+}
+
+#container a{
+  text-decoration: none;
+}
+
+
+.content {
+  font-style:normal;
+  font-family:helvetica, arial, verdana, sans-serif;
+  background:#333333;
+  margin: 30px 0;
+  padding: 15px 0;
+}
+
+.content p {
+  margin: 10px 0;
+  padding: 15px 20px;
+}
+
+.panel {
+  position: fixed;
+  top: 80px;
+  left: 0;
+  display: none;
+  background: #CBC9BB;
+  width: 750px;
+  height: auto;
+  padding: 30px 30px 30px 30px;
+  filter: alpha(opacity=85);
+  opacity: .85;
+}
+
+.panel p{
+  margin: 0 0 15px 0;
+  padding: 0;
+  color: #cccccc;
+}
+
+.panel a, .panel a:visited{
+  margin: 0;
+  padding: 0;
+  color: #9FC54E;
+  text-decoration: none;
+  border-bottom: 1px solid #9FC54E;
+}
+
+.panel a:hover, .panel a:visited:hover{
+  margin: 0;
+  padding: 0;
+  color: #ffffff;
+  text-decoration: none;
+  border-bottom: 1px solid #ffffff;
+}
+
+a.trigger{
+  position: fixed;
+  text-decoration: none;
+  top: 20px; left: 0;
+  font-size: 16px;
+  font-family: verdana, helvetica, arial, sans-serif;
+  color:#fff;
+  padding: 20px 40px 20px 15px;
+  font-weight: 700;
+  background: #CBC9BB;
+  display: block;
+}
+
+a.trigger:hover{
+  position: fixed;
+  text-decoration: none;
+  top: 20px; left: 0;
+  font-size: 16px;
+  font-family: verdana, helvetica, arial, sans-serif;
+  color:#fff;
+  padding: 20px 40px 20px 20px;
+  font-weight: 700;
+  background:#CBC9BB;
+
+  display: block;
+}
+
+a.active.trigger {
+//  background:#222222 url(images/minus.png) 85% 55% no-repeat;
+  background:#f4b641;
+}
+
+
+.columns{
+  clear: both;
+  width: 330px;
+  padding: 0 0 20px 0;
+  line-height: 22px;
+}
+
+.colleft{
+  float: left;
+  width: 130px;
+  line-height: 22px;
+}
+
+.colright{
+  float: right;
+  width: 130px;
+  line-height: 22px;
+}
+
+ul{
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+}
+
+ul li{
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+}
+
+tr.even {
+  background-color: #F2F1E7;
+}
+
+tr.odd {
+  background-color: #F8F7F2;
+}
+
+tr.even td.sorting_1 {
+  background-color: #EEEFE3;
+}
+
+tr.odd td.sorting_1 {
+  background-color: #F4F3EE;
+}

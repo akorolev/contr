@@ -1,0 +1,29 @@
+<%= form_tag({:action => :filter_panel}) do %>
+    <h4> Time filter</h4>
+    <div id="time_filter" >
+    <% time_filters = { "Any" => "Any Time",
+                        "finish_8" => "Ending in 8 Hours",
+                        "finish_24" => "Ending in 24 Hours",
+    } %>
+    <% time_filters.each do |name, label| %>
+      <%= radio_button_tag(:filter_time, name, checked = params[:filter_time]==name ) %>
+      <%= label_tag("filter_time_"+ name, label) %>
+    <% end %>
+    </div>
+    <h4> Listing activity filter</h4>
+    <% list_filters = { "buy_now_filter" => "Buy now is added",
+                        "repeated_filter" => "Remove repeated",
+                        "skip_filter" => "Remove boring",
+                        "attention_filter" => "Interesting",
+
+    } %>
+    <div id="listing_filter" >
+    <% list_filters.each do |name, label| %>
+        <%= check_box_tag(name, name, checked = params[name]==name ) %>
+        <%= label_tag(name, label) %>
+    <% end %>
+    </div>
+    <h4> Sellers filter</h4>
+
+    <%= submit_tag "Submit" %>
+<% end %>

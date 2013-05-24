@@ -1,0 +1,42 @@
+<h2>
+  Profile : <%= @user.Name %>
+</h2>
+<b>Experience</b>
+<%= @user.Exp %>
+<b>Bought</b>
+<%= @user.Bought %>
+<b>Sold</b>
+<%= @user.Sold %>
+<b>Listed</b>
+<%= @user.Listed %>
+<b>Sell ratio</b>
+<%= @user.sell_ratio %>
+<br>
+
+<b>Rated</b>
+<%= best_in_place @user, :Rated, :type => :select, :collection => [[0, "unrated"], [1, "rated"]] %>
+<br>
+<b>Buyer Rating</b>
+<%= best_in_place @user, :BuyerRating, :type => :select, :collection => [[-1, "silly"], [0, "normal"], [1, "pro"], [2, "expert"]] %>
+<br>
+<b>Seller Rating</b>
+<%= best_in_place @user, :SellerRating, :type => :select, :collection => [[-1, "greedy"], [0, "normal"], [1, "worthy"]] %>
+<br>
+<% if @display_bids %>
+<p> Bids </p>
+<table id="lists" class="display" data-source="<%= show_bids_user_url(format: "json") %>">
+  <thead>
+  <tr>
+    <th>Met</th>
+    <th>Name</th>
+    <th>Value</th>
+    <th>Bids</th>
+    <th>Image</th>
+    <th>End Data</th>
+    <th>Seller</th>
+    <th>Rating</th>
+  </tr>
+  </thead>
+</table>
+
+<% end %>

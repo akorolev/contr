@@ -1,0 +1,19 @@
+<%= form_tag({:action => :filter_panel}) do %>
+    <h4> Sold filter</h4>
+    <div id="sold_filter" >
+      <%= label_tag(:filter_sold_from, "from") %>
+      <%= number_field_tag(:filter_sold_from, params[:filter_sold_from], :in => 1...9999) %>
+      <%= label_tag(:filter_sold_to, "to") %>
+      <%= number_field_tag(:filter_sold_to, params[:filter_sold_to], :in => 1...9999) %>
+    </div>
+    <h4> Bought filter</h4>
+    <div id="bought_filter" >
+      <%= label_tag(:filter_bought_from, "from") %>
+      <%= number_field_tag(:filter_bought_from, params[:filter_bought_from], :in => 1...9999) %>
+      <%= label_tag(:filter_bought_to, "to") %>
+      <%= number_field_tag(:filter_bought_to, params[:filter_bought_to], :in => 1...9999) %>
+    </div>
+    <br>
+
+    <%= submit_tag "Submit" %>
+<% end %>
