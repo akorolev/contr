@@ -44,3 +44,4 @@ gem 'whenever'
 gem "oauth-plugin"
 gem 'composite_primary_keys'
 gem 'best_in_place'
+gem 'therubyracer'

@@ -2,13 +2,15 @@ class TmeOauth
   attr_accessor :response
   def initialize
     @req_uri = 'https://api.trademe.co.nz/v1/'
-    @consumer = OAuth::Consumer.new(Tokens.first.consumer_key, Tokens.first.consumer_secret,
+    token = Tokens.first
+#    token = Tokens.where("tokens.login = ?", "akorolev").first
+    @consumer = OAuth::Consumer.new(token.consumer_key, token.consumer_secret,
                                     {:site => "https://secure.trademe.co.nz",
                                      :request_token_path => "/Oauth/RequestToken",
                                      :access_token_path => "/Oauth/AccessToken",
                                      :authorize_path => "/Oauth/Authorize"
                                     })
-    @access_token = OAuth::AccessToken.new(@consumer, Tokens.first.oauth_token, Tokens.first.oauth_token_secret)
+    @access_token = OAuth::AccessToken.new(@consumer, token.oauth_token, token.oauth_token_secret)
     @response = @access_token.get(@req_uri + 'MyTradeMe/Summary.json')
     #case @response
     #  when Net::HTTPSuccess then @response

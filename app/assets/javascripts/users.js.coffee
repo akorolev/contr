@@ -42,41 +42,61 @@ $ ->
 
     ]
     sAjaxSource: $('#users').data('source')
+    fnServerParams: (aoData) ->
+      aoData.push
+        name: "filter_sold_from"
+        value: $('#filter_sold_from').val()
+      ,
+        name: "filter_sold_to"
+        value: $('#filter_sold_to').val()
+      ,
+        name: "filter_bought_from"
+        value: $('#filter_bought_from').val()
+      ,
+        name: "filter_bought_to"
+        value: $('#filter_bought_to').val()
 
 $ ->
-  dt = $('#users_bids').dataTable
+  user_info_columns = []
+  i = 0
+  while i < datatableheaders.length
+    user_info_columns[i] =
+      mData: datatableheaders[i]
+      bSortable: datatablesorted[i]
+      sWidth: datatablewidth[i]
+    i++
+
+  dt = $('#user-info').dataTable
     sPaginationType: "full_numbers"
     bJQueryUI: true
     bProcessing: true
     bServerSide: true
     aaSorting: [[5, "desc"]]
-    aoColumns: [
-      mData: "met"
-      sWidth: "20px"
-    ,
-      mData: "name"
-      bSortable: false
-      sWidth: "280px"
-    ,
-      mData: "value"
-      sWidth: "70px"
-    ,
-      mData: "bidcnt"
-      sWidth: "7px"
-    ,
-      mData: "photo"
-      bSortable: false
-      sWidth: "70px"
-    ,
-      mData: "ending"
-      sWidth: "120px"
-    ,
-      mData: "seller"
-      sWidth: "100px"
-    ,
-      mData: "sell_ratio"
-      sWidth: "50px"
-    ,
+    aoColumns: user_info_columns
+    sAjaxSource: $('#user-info').data('source')
+    fnServerParams: (aoData) ->
+      aoData.push
+        name: "infotype"
+        value: $('#user-info').data('infotype')
 
-    ]
-    sAjaxSource: $('#users_bids').data('source')
+$(document).on "click", "#user-info tbody td", ->
+  nTr = $(this).parents('tr')[0]
+  if dt.fnIsOpen(nTr)
+    dt.fnClose nTr
+    return
+  openRows = dt.fnSettings().aoOpenRows;
+  if (openRows.length > 0)
+    dt.fnClose openRows[0].nParent
+  dt.fnOpen nTr, fnFormatDetails(nTr), 'details'
+
+
+fnFormatDetails = (nTr) ->
+  mData = dt.fnGetData(nTr)
+  #   console.log(mData)
+  sOut = "<table cellpadding=\"5\" cellspacing=\"0\" border=\"0\" style=\"padding-left:10px;\">"
+  sOut += "<tr><td>"+mData.source+"</td><td rowspan='2'>"+mData.large_photo+"</td></tr>"
+  sOut += "<tr><td>"+mData.listed+" "+mData.sold+" "+mData.seller_exp+"</td></tr>"
+  sOut += "<tr><td colspan='2'>"+mData.description+" </td></tr>"
+  sOut += "</table>"
+  sOut
+

@@ -71,14 +71,12 @@ ActiveRecord::Schema.define(:version => 0) do
     t.integer  "Repeated",    :limit => 1,                                 :default => 0,   :null => false
   end
 
-  create_table "oauth", :primary_key => "oauth_token", :force => true do |t|
-    t.string  "oauth_token_secret",       :limit => 34
-    t.string  "oauth_callback_confirmed", :limit => 5
-    t.string  "oauth_token_type",         :limit => 8
-    t.integer "oauth_token_time"
-    t.string  "consumer_key",             :limit => 34
-    t.string  "consumer_secret",          :limit => 34
+  create_table "notifications", :primary_key => "list_id", :force => true do |t|
+    t.integer "done", :limit => 1,  :default => 0, :null => false
+    t.string  "info", :limit => 20
   end
+
+  add_index "notifications", ["done"], :name => "done"
 
   create_table "sellers", :primary_key => "Seller", :force => true do |t|
     t.integer "Sold"
@@ -87,14 +85,14 @@ ActiveRecord::Schema.define(:version => 0) do
     t.integer "Bad",    :limit => 1
   end
 
-  create_table "tokens", :id => false, :force => true do |t|
-    t.string  "oauth_token",              :limit => 34, :default => "", :null => false
+  create_table "tokens", :primary_key => "oauth_token", :force => true do |t|
     t.string  "oauth_token_secret",       :limit => 34
     t.string  "oauth_callback_confirmed", :limit => 5
     t.string  "oauth_token_type",         :limit => 8
     t.integer "oauth_token_time"
     t.string  "consumer_key",             :limit => 34
     t.string  "consumer_secret",          :limit => 34
+    t.string  "login",                    :limit => 64
   end
 
   create_table "users", :primary_key => "Id", :force => true do |t|

@@ -22,21 +22,35 @@
 <b>Seller Rating</b>
 <%= best_in_place @user, :SellerRating, :type => :select, :collection => [[-1, "greedy"], [0, "normal"], [1, "worthy"]] %>
 <br>
-<% if @display_bids %>
-<p> Bids </p>
-<table id="lists" class="display" data-source="<%= show_bids_user_url(format: "json") %>">
-  <thead>
-  <tr>
-    <th>Met</th>
-    <th>Name</th>
-    <th>Value</th>
-    <th>Bids</th>
-    <th>Image</th>
-    <th>End Data</th>
-    <th>Seller</th>
-    <th>Rating</th>
-  </tr>
-  </thead>
-</table>
+
+
+
+<div id="select_table" >
+  <%= form_tag({:action => "select_table"  } ) do  %>
+      <% @selectable_table.each do |opt| %>
+          <%=  radio_button_tag :select_table, opt[:label], opt[:active], :disabled => opt[:disabled], :onclick => "this.parentNode.submit();" %>
+          <%= label_tag("select_table_"+ opt[:label], opt[:label]) %>
+      <% end %>
+  <% end %>
+</div>
+
+
+<% @selectable_table.each do |opt| %>
+    <% next if !opt[:active] %>
+
+    <%= javascript_tag do %>
+        window.datatableheaders = <%= raw opt[:header].map{|rec| rec.downcase}.to_json %>
+        window.datatablesorted = <%= raw opt[:sorted].to_json %>
+        window.datatablewidth = <%= raw opt[:width].to_json %>
+    <% end %>
+
+
+    <table id="user-info" class="display" data-source="<%= show_info_table_user_url(format: "json")%>" data-infotype=<%=opt[:label]%>>
+      <thead>
+      <tr>
+        <%= raw(opt[:header].map{|hdr| content_tag(:th, hdr)}.join(" ")) %>
+      </tr>
+      </thead>
+    </table>
 
 <% end %>

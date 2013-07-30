@@ -1,8 +1,7 @@
-# We violate MVC here - as we collect data separately in another thread
 class ListCollector
   LIST_PATH = "Search/General.xml?category=0187-4353&rows=5000&page="
-
   def collect()
+    @oauth_cnt = 0
     status  = false
     begin
       status = catch(:HTTPUnauthorized) do
@@ -15,6 +14,7 @@ class ListCollector
       end
     end until status
   end
+
   def db_renew
     @ts = Time.now.to_i
     @tme =TmeOauth.new
@@ -24,7 +24,6 @@ class ListCollector
       end
     end
   end
-
 
   def cleanup_bids
      Bids.group("ListingId").each do |bid_rec|
@@ -36,11 +35,15 @@ class ListCollector
     @ts = Time.now.to_i
     @tme =TmeOauth.new
     cnt = 1
+    local_cnt = 0
     until (listings = @tme.get(LIST_PATH + cnt.to_s))["SearchResults"]["List"].nil?
+      puts("--Page-- " + cnt.to_s)
       listings["SearchResults"]["List"]["Listing"].each do |list_entry|
         process_listing(list_entry)
+        puts("Page " + cnt.to_s + "Rec " + (local_cnt += 1).to_s)
+
       end
-        cnt+=1
+      cnt+=1
     end
 
     cnt = 0
@@ -91,10 +94,15 @@ class ListCollector
     end
   end
 
+  def update_listing_time_stamp(listing_rec)
+    listing_rec.TimeStamp = @ts
+    listing_rec.save!
+  end
+
   def update_listing(listing_rec, id)
     new_rec = listing_rec.Name.nil?
-    p id
-    puts caller
+    @oauth_cnt += 1
+    p [id, @oauth_cnt]
     detailed = @tme.get("Listings/#{id}.xml")['ListedItemDetail']
     return if (detailed.nil?)
     seller = find_update_seller(detailed['Member'],new_rec)
@@ -117,17 +125,11 @@ class ListCollector
     listing_rec.PhotoURL = nested_hash_value(detailed, "Thumbnail")
     listing_rec.SkipIt = seller.SellerRating.to_i < 0 ? 1 : 0
     listing_rec.Attention = (listing_rec.Attention > 0 || seller.SellerRating.to_i > 0 || bids_info[:attention] ) ? 1 : 0
-    listing_rec.TimeStamp = @ts
 #    listing_rec.NewBuynow = 1 if !new_rec && detailed['Questions'] && listing_rec.Buynow == 0 && entry['BuyNowPrice']
     listing_rec.NewBuynow = 1 if detailed['BuyNowPrice'] && listing_rec.Buynow == 0 && !new_rec
     listing_rec.Buynow = detailed['BuyNowPrice'].to_s.gsub(/([,$])/,"").to_f
     listing_rec.Repeated = 1 unless Archive.where("Name = ? AND Value = ? AND SellerId = ?", listing_rec.Name, listing_rec.Value, listing_rec.SellerId).empty?
-    listing_rec.save!
-  end
-
-  def update_listing_time_stamp(listing_rec)
-    listing_rec.TimeStamp = @ts
-    listing_rec.save!
+    update_listing_time_stamp(listing_rec)
   end
 
   def process_bids(id, bids)
@@ -193,4 +195,52 @@ class ListCollector
       r
     end
   end
+end
+
+class ListChecker < ListCollector
+
+  def do_collect
+    @ts = Time.now.to_i
+    @tme =TmeOauth.new
+    @cnt = 0
+    page_count = 1
+    until (listings = @tme.get(LIST_PATH + page_count.to_s))["SearchResults"]["List"].nil?
+      listings["SearchResults"]["List"]["Listing"].each{|list_entry| process_listing(list_entry)}
+      page_count+=1
+    end
+    true
+  end
+
+  def process_listing(entry)
+    return if entry['BuyNowPrice'].nil? && entry['BidCount'].to_i == 0
+    listing_rec = List.find_by_ListingId(entry['ListingId'])
+    if listing_rec.nil?
+      @cnt+=1
+      puts(entry['ListingId'] + " NEWREC BNprice=" + entry['BuyNowPrice'].to_s + " BCnt=" + entry['BidCount'].to_s + " cnt =" + @cnt.to_s)
+      check_listing(nil, entry['ListingId'])
+    elsif (listing_rec.Buynow == 0 && entry['BuyNowPrice']) || (listing_rec.BidCnt != entry['BidCount'].to_i)
+      @cnt+=1
+      puts(entry['ListingId'].to_s + " OLDREC BNprice=" + entry['BuyNowPrice'].to_s + " BCnt=" + entry['BidCount'].to_s + " cnt =" + @cnt.to_s)
+      check_listing(listing_rec, entry['ListingId'])
+    end
+  end
+
+  def check_listing(listing_rec, id)
+    info = {}
+    detailed = @tme.get("Listings/#{id}.xml")['ListedItemDetail']
+    return if (detailed.nil?)
+
+    unless detailed['Bids'].nil?
+      info = process_bids(detailed['ListingId'], detailed['Bids']['List'])
+    end
+
+    unless listing_rec.nil?
+      info[:new_buy_now] = true if detailed['BuyNowPrice'] && listing_rec.Buynow == 0 && detailed['Questions']
+    end
+
+    if info[:attention] || info[:new_buy_now]
+      Notifications.add_and_post(id, info)
+    end
+  end
+
 end
