@@ -14,7 +14,11 @@
       <%= number_field_tag(:filter_bought_to, params[:filter_bought_to]||9999, :in => 0...9999) %>
     </div>
     <br>
-
+    <div id="bids_filter" >
+      <%= label_tag(:filter_with_bids, "with bids only") %>
+      <%= check_box_tag(:filter_with_bids, "checked", checked = params[:filter_with_bids]=="checked" ) %>
+    </div>
+    <br>
     <%= submit_tag "Submit" %>
 <% end %>
 

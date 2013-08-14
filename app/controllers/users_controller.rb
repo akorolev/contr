@@ -29,7 +29,8 @@ class UsersController < ApplicationController
                 :filter_sold_from => params[:filter_sold_from],
                 :filter_sold_to => params[:filter_sold_to],
                 :filter_bought_from => params[:filter_bought_from],
-                :filter_bought_to => params[:filter_bought_to]
+                :filter_bought_to => params[:filter_bought_to],
+                :filter_with_bids => params[:filter_with_bids]
   end
 
   def show

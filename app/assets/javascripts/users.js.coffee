@@ -55,6 +55,9 @@ $ ->
       ,
         name: "filter_bought_to"
         value: $('#filter_bought_to').val()
+      ,
+        name: "filter_with_bids"
+        value: $('#filter_with_bids:checked').val()
 
 $ ->
   user_info_columns = []

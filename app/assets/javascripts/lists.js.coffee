@@ -67,6 +67,7 @@ fnFormatDetails = (nTr) ->
 $ ->
   $("#select_table").buttonset()
   $("#time_filter").buttonset()
+  $("#listing_filter").buttonset()
   $("input[type=submit]").button()
   $(".trigger").click ->
     $(".panel").toggle "fast"

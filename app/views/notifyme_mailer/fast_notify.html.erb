@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content='html; charset=UTF-8' http-equiv='Content-Type' />
+</head>
+<body>
+  <p><b>Interesting listings</b></p>
+
+  <table border="0" align="left" width="100%">
+    <tr>
+      <th width="5%">Met</th>
+      <th width="30%">Name</th>
+      <th width="10%">Value</th>
+      <th width="5%">Bids</th>
+      <th width="30%">Image</th>
+      <th width="10%">End Data</th>
+      <th width="10%">Seller</th>
+    </tr>
+    <% @recs.each do |rec| %>
+    <tr>
+      <% if (rec.list.ReserveMet > 0) %>
+          <td bgcolor="#00C000"><%= rec.info %></td>
+      <% else %>
+          <td><%= rec.info %></td>
+      <% end %>
+      <td><%= ("<a href=" + rec.list.ListingURL + ">" + h(rec.list.Name) + "</a>").html_safe %> </td>
+      <td><%= number_to_currency(rec.list.Value) %> </td>
+      <td><%= rec.list.BidCnt %> </td>
+      <td><%= ("<img src=" + h(rec.list.PhotoURL).sub("thumb", "med")+">").html_safe %> </td>
+      <td><%=  h(rec.list.EndDate.strftime("%a, %e %b %H:%M")) %> </td>
+      <td><%= (rec.list.BidCnt > 0 ? Bids.where("ListingId = ?", rec.list_id).map{|bid| bid.users.Name}.join("<br>") : " ").html_safe %> </td>
+    </tr>
+<% end %>
+</table>
+
+</body>
+</html>

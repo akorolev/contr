@@ -127,8 +127,12 @@ class UsersDatatable < EmptyDatatable
 
   def fetch_recs
     puts YAML::dump(params.inspect)
-    recs = Users.order("#{sort_column} #{sort_direction}")
-    recs = recs.page(page).per_page(per_page)
+    if @filters[:filter_with_bids] == "checked"
+      recs = Users.joins(:bids).uniq
+    else
+      recs = Users
+    end
+    recs = recs.order("#{sort_column} #{sort_direction}").page(page).per_page(per_page)
     recs = recs.where("users.Sold >= ? and users.Sold <= ? and users.Bought >= ? and users.Bought <= ?",
                       @filters[:filter_sold_from].to_i, @filters[:filter_sold_to].to_i,
                       @filters[:filter_bought_from].to_i, @filters[:filter_bought_to].to_i)

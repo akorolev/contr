@@ -75,10 +75,8 @@ class ListCollector
         buyer.save!
       end
     end
-    Bids.where("ListingId = ?", rec_to_arc.ListingId).each do |bid_rec|
-      p "Put to archive bids is not implemented!!!" if Users.find(bid_rec.User).BuyerRating > 0
-      bid_rec.destroy
-    end
+    Bids.destroy_all(:ListingId => rec_to_arc.ListingId)
+    Notifications.destroy_all(:list_id => rec_to_arc.ListingId)
     unless just_delete
       Archive.create(rec_to_arc.attributes) unless Archive.find_by_ListingId(rec_to_arc.ListingId)
     end
@@ -90,11 +88,11 @@ class ListCollector
     if listing_rec.Name.nil? || (listing_rec.Buynow == 0 && entry['BuyNowPrice']) || listing_rec.BidCnt != entry['BidCount'].to_i
        update_listing(listing_rec, entry['ListingId'])
     else
-      update_listing_time_stamp(listing_rec)
+      save_listing_ts(listing_rec)
     end
   end
 
-  def update_listing_time_stamp(listing_rec)
+  def save_listing_ts(listing_rec)
     listing_rec.TimeStamp = @ts
     listing_rec.save!
   end
@@ -126,10 +124,11 @@ class ListCollector
     listing_rec.SkipIt = seller.SellerRating.to_i < 0 ? 1 : 0
     listing_rec.Attention = (listing_rec.Attention > 0 || seller.SellerRating.to_i > 0 || bids_info[:attention] ) ? 1 : 0
 #    listing_rec.NewBuynow = 1 if !new_rec && detailed['Questions'] && listing_rec.Buynow == 0 && entry['BuyNowPrice']
-    listing_rec.NewBuynow = 1 if detailed['BuyNowPrice'] && listing_rec.Buynow == 0 && !new_rec
+    listing_rec.NewBuynow = 1 if detailed['BuyNowPrice'] && detailed['Questions'] && listing_rec.Buynow == 0 && !new_rec
     listing_rec.Buynow = detailed['BuyNowPrice'].to_s.gsub(/([,$])/,"").to_f
     listing_rec.Repeated = 1 unless Archive.where("Name = ? AND Value = ? AND SellerId = ?", listing_rec.Name, listing_rec.Value, listing_rec.SellerId).empty?
-    update_listing_time_stamp(listing_rec)
+    save_listing_ts(listing_rec)
+    Notifications.add_and_post(listing_rec)
   end
 
   def process_bids(id, bids)
@@ -195,52 +194,4 @@ class ListCollector
       r
     end
   end
-end
-
-class ListChecker < ListCollector
-
-  def do_collect
-    @ts = Time.now.to_i
-    @tme =TmeOauth.new
-    @cnt = 0
-    page_count = 1
-    until (listings = @tme.get(LIST_PATH + page_count.to_s))["SearchResults"]["List"].nil?
-      listings["SearchResults"]["List"]["Listing"].each{|list_entry| process_listing(list_entry)}
-      page_count+=1
-    end
-    true
-  end
-
-  def process_listing(entry)
-    return if entry['BuyNowPrice'].nil? && entry['BidCount'].to_i == 0
-    listing_rec = List.find_by_ListingId(entry['ListingId'])
-    if listing_rec.nil?
-      @cnt+=1
-      puts(entry['ListingId'] + " NEWREC BNprice=" + entry['BuyNowPrice'].to_s + " BCnt=" + entry['BidCount'].to_s + " cnt =" + @cnt.to_s)
-      check_listing(nil, entry['ListingId'])
-    elsif (listing_rec.Buynow == 0 && entry['BuyNowPrice']) || (listing_rec.BidCnt != entry['BidCount'].to_i)
-      @cnt+=1
-      puts(entry['ListingId'].to_s + " OLDREC BNprice=" + entry['BuyNowPrice'].to_s + " BCnt=" + entry['BidCount'].to_s + " cnt =" + @cnt.to_s)
-      check_listing(listing_rec, entry['ListingId'])
-    end
-  end
-
-  def check_listing(listing_rec, id)
-    info = {}
-    detailed = @tme.get("Listings/#{id}.xml")['ListedItemDetail']
-    return if (detailed.nil?)
-
-    unless detailed['Bids'].nil?
-      info = process_bids(detailed['ListingId'], detailed['Bids']['List'])
-    end
-
-    unless listing_rec.nil?
-      info[:new_buy_now] = true if detailed['BuyNowPrice'] && listing_rec.Buynow == 0 && detailed['Questions']
-    end
-
-    if info[:attention] || info[:new_buy_now]
-      Notifications.add_and_post(id, info)
-    end
-  end
-
 end
