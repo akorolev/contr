@@ -1,6 +1,11 @@
 class ListCollector
   LIST_PATH = "Search/General.xml?category=0187-4353&rows=5000&page="
+
   def collect()
+    if File.new(__FILE__).flock(File::LOCK_EX | File::LOCK_NB) == false
+      puts "*** can't lock file, another instance of script running?  exiting"
+      exit 1
+    end
     @oauth_cnt = 0
     status  = false
     begin
@@ -85,10 +90,12 @@ class ListCollector
 
   def process_listing(entry)
     listing_rec = List.find_or_initialize_by_ListingId(entry['ListingId'])
+    catch(:HTTPBadRequest) do
     if listing_rec.Name.nil? || (listing_rec.Buynow == 0 && entry['BuyNowPrice']) || listing_rec.BidCnt != entry['BidCount'].to_i
        update_listing(listing_rec, entry['ListingId'])
     else
       save_listing_ts(listing_rec)
+      end
     end
   end
 

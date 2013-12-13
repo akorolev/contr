@@ -25,7 +25,7 @@ class TmeOauth
       when Net::HTTPBadRequest then throw :HTTPBadRequest
       when Net::HTTPUnauthorized then throw :HTTPUnauthorized
       else
-        raise "HTTPOtherError"
+        nil
     end
   end
 end
